@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Error :(</title>
+  </head>
+  <body>
+    <h2>Error</h2>
+    <div id="error"><div>
+
+    <script>
+      async function getError() {
+        var query = window.location.search;
+        var errorIdQuery = query && query.toLowerCase().indexOf('?errorid=') == 0 && query;
+
+        const response = await fetch('http://localhost:5000/api/authenticate/error' + errorIdQuery, {
+          credentials: 'include'
+        });
+
+        const data = await response.text();
+
+        document.getElementById('error').innerText = data;
+      }
+
+      getError();
+    </script>
+  </body>
+</html>

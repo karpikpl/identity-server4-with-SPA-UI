@@ -1,0 +1,21 @@
+<html>
+<body>
+  <h1>Callback</h1>
+  <script src="oidc-client.min.js"></script>
+</body>
+
+<script>
+   const manager = new Oidc.UserManager({
+     response_mode: 'query'
+   });
+
+    manager.signinPopupCallback()
+     .then(function(user) {
+       console.log(user);
+       // do something with the user?
+     }).catch(function(e) {
+       console.error(e);
+     });
+
+ </script>
+</html>

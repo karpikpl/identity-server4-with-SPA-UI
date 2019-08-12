@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Bye bye!</title>
+  </head>
+  <body>
+    <div id="logout_iframe">
+    </div>
+    <div id="bye"><div>
+
+    <script>
+      async function logMeOut() {
+        var query = window.location.search;
+        var logoutIdQuery = query && query.toLowerCase().indexOf('?logoutid=') == 0 && query;
+
+        const response = await fetch('http://localhost:5000/api/authenticate/logout' + logoutIdQuery, {
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (data.signOutIFrameUrl) {
+          var iframe = document.createElement('iframe');
+          iframe.width = 0;
+          iframe.height = 0;
+          iframe.class = 'signout';
+          iframe.src = data.signOutIFrameUrl;
+          document.getElementById('logout_iframe').appendChild(iframe);
+        }
+
+        if (data.postLogoutRedirectUri) {
+          window.location = data.postLogoutRedirectUri;
+        } else {
+          document.getElementById('bye').innerText = 'You can close this window. Bye!';
+        }
+      }
+
+      logMeOut();
+    </script>
+  </body>
+</html>

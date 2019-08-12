@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Login Page</title>
+</head>
+
+<body>
+  <script type="text/javascript">
+      function getQueryVariable(variable) {
+        const query = window.location.search.substring(1);
+        const vars = query.split('&');
+        for (let i = 0; i < vars.length; i++) {
+          let pair = vars[i].split('=');
+          if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+          }
+        }
+      }
+
+      async function logMeIn() {
+        const returnUrl = getQueryVariable('ReturnUrl');
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // call the API
+        const response = await fetch('http://localhost:5000/api/authenticate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            username,
+            password,
+            returnUrl
+          })
+        });
+
+        const data = await response.json();
+
+        if (data && data.isOk) {
+          window.location = data.redirectUrl;
+        }
+      }
+
+  </script>
+
+  <form>
+    <input type="text" name="username" id="username" value="">
+    <input type="password" name="password" id="password" value="">
+    <button type="button" name="button" id="login" onclick="logMeIn()">Login</button>
+  </form>
+</body>
+
+</html>
