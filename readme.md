@@ -17,7 +17,7 @@ Runs on port 8082
 
 ## api
 Represents protected resource that client is trying to access.
-Runs on port 6000
+Runs on port 8083
 
 # How to run
 ## client
@@ -39,4 +39,9 @@ api> dotnet run
 
 # To test
 1. Navigate your browser to http://localhost:8080/index.html
-2. Use alice/alice as username and password
+2. Use alice/alice or bob/bob as username and password
+
+# Docker
+```
+docker-compose up
+```

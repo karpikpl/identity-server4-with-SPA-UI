@@ -6,6 +6,7 @@ using System;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -13,12 +14,14 @@ namespace IdentityServer
 {
     public class Startup
     {
-        public IHostingEnvironment Environment { get; }
+		public IConfiguration Configuration { get; }
+		public IHostingEnvironment Environment { get; }
 
-        public Startup(IHostingEnvironment environment)
+        public Startup(IHostingEnvironment environment, IConfiguration configuration)
         {
             Environment = environment;
-        }
+			Configuration = configuration;
+		}
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -39,12 +42,17 @@ namespace IdentityServer
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1)
                 .AddJsonFormatters();
 
-            var builder = services.AddIdentityServer(options => 
+            var builder = services.AddIdentityServer(options =>
             {
-                options.UserInteraction.LoginUrl = "http://localhost:8082/index";
-                options.UserInteraction.ErrorUrl = "http://localhost:8082/error";
-                options.UserInteraction.LogoutUrl = "http://localhost:8082/logout";
-            })
+                options.UserInteraction.LoginUrl = "http://localhost:8082/index.html";
+                options.UserInteraction.ErrorUrl = "http://localhost:8082/error.html";
+                options.UserInteraction.LogoutUrl = "http://localhost:8082/logout.html";
+
+				if(!string.IsNullOrEmpty(Configuration["Issuer"]))
+				{
+					options.IssuerUri = Configuration["Issuer"];
+				}
+			})
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients())

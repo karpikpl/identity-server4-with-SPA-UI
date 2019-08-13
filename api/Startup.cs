@@ -18,6 +18,8 @@ namespace api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
             services
                 .AddMvcCore()
                 .AddJsonFormatters()
@@ -27,7 +29,7 @@ namespace api
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
-                    options.Authority = "http://localhost:5000";
+                    options.Authority = Configuration["Authority"] ?? "http://localhost:5000";
                     options.RequireHttpsMetadata = false;
                     options.Audience = "api";
                 });
@@ -57,7 +59,6 @@ namespace api
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseCors();
             app.UseMvc();
