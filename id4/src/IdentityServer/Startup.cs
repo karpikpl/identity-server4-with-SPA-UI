@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace IdentityServer
@@ -15,9 +16,9 @@ namespace IdentityServer
     public class Startup
     {
 		public IConfiguration Configuration { get; }
-		public IHostingEnvironment Environment { get; }
+		public IWebHostEnvironment Environment { get; }
 
-        public Startup(IHostingEnvironment environment, IConfiguration configuration)
+        public Startup(IWebHostEnvironment environment, IConfiguration configuration)
         {
             Environment = environment;
 			Configuration = configuration;
@@ -33,14 +34,13 @@ namespace IdentityServer
                 {
                     policy.AllowAnyHeader();
                     policy.AllowAnyMethod();
-                    policy.WithOrigins("http://localhost:8082");
+                    policy.WithOrigins("http://localhost:8082", "http://localhost:8080");
                     policy.AllowCredentials();
                 });
             });
 
             services.AddMvcCore()
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1)
-                .AddJsonFormatters();
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
 
             var builder = services.AddIdentityServer(options =>
             {
@@ -71,6 +71,8 @@ namespace IdentityServer
             {
                 AllowAll = true
             };
+
+            services.AddControllers();
             services.AddSingleton<ICorsPolicyService>(cors);
             services.AddTransient<IReturnUrlParser, ReturnUrlParser>();
         }
@@ -82,15 +84,16 @@ namespace IdentityServer
                 app.UseDeveloperExceptionPage();
             }
 
-            // uncomment if you want to support static files
-            //app.UseStaticFiles();
-
-            app.UseIdentityServer();
-
             app.UseCors();
 
-            // uncomment, if you want to add an MVC-based UI
-            app.UseMvc();
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+            app.UseIdentityServer();
         }
     }
 }

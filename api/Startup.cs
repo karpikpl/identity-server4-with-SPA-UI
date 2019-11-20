@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace api
 {
@@ -20,11 +21,11 @@ namespace api
         {
             Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
+
             services
                 .AddMvcCore()
-                .AddJsonFormatters()
                 .AddAuthorization()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
@@ -33,6 +34,8 @@ namespace api
                     options.RequireHttpsMetadata = false;
                     options.Audience = "api";
                 });
+
+            //services.AddAuthorization();
 
             services.AddCors(setup =>
             {
@@ -44,11 +47,15 @@ namespace api
                         .AllowAnyOrigin();
                 });
             });
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseRouting();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -59,9 +66,16 @@ namespace api
                 app.UseHsts();
             }
 
-            app.UseAuthentication();
             app.UseCors();
-            app.UseMvc();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
         }
     }
 }
